@@ -6,12 +6,15 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { getAllCardsLike } from '../Helpers/SqlHelper';
+import { getAllCardsLike, initDb } from '../Helpers/SqlHelper';
 
 export default defineComponent({
   name: 'HelloWorld',
   props: {
     msg: String,
+  },
+  async created() {
+    await initDb();
   },
   watch: {
     inputValue(newValue) {

@@ -1,4 +1,5 @@
-import sqlite3 from 'sqlite3';
+// @ts-ignore
+import initSqlJs from 'sql.js';
 
 interface Card {
   name: string;
@@ -6,28 +7,33 @@ interface Card {
   isDoubleSided: boolean;
   scryfallID: string;
 }
+let db: any = null;
 
-const db = new sqlite3.Database('AllPrintings.sql', sqlite3.OPEN_READWRITE, (err) => {
-  if (err) {
-    console.error(err.message);
-  }
-});
+export async function initDb() {
+  console.log("test");
+  const SQL = await initSqlJs({
+    locateFile: (file : string) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.wasm`
+  });
+  const response = await fetch('AllPrintings.sql'); // Adjust the path as necessary
+  const buffer = await response.arrayBuffer();
+
+  db = new SQL.Database(new Uint8Array(buffer));
+}
 
 export function getAllCardsLike(name: string, limit: number): Promise<Card[]> {
-  return new Promise((resolve, reject) => {
-    const sql = `SELECT * FROM SmallerCards WHERE name like '%${name}%' LIMIT ${limit}`;
-    db.all(sql, [], (err, rows: any[]) => {
-      if (err) {
-        reject(err);
-      } else {
-        const cards: Card[] = rows.map(row => ({
-          name: row.name,
-          uuid: row.uuid,
-          isDoubleSided: row.isDoubleSided,
-          scryfallID: row.scryfallID
-        }));
-        resolve(cards);
-      }
-    });
-  });
+  if (!db) throw new Error("Database not initialized");
+
+  const sql = `SELECT * FROM SmallerCards WHERE name LIKE '%${name}%' LIMIT ${limit}`;
+  const result = db.exec(sql);
+
+  if (result.length === 0) return Promise.resolve([]);
+
+  const cards: Card[] = result[0].values.map((row: any[]) => ({
+    name: row[0],
+    uuid: row[1],
+    isDoubleSided: row[2],
+    scryfallID: row[3]
+  }));
+
+  return Promise.resolve(cards);
 }
