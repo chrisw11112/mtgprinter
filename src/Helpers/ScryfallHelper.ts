@@ -5,7 +5,7 @@ let lastRequestTime: Date = new Date();
 
 const shouldNotContinue = () => (new Date().getTime() - lastRequestTime.getTime()) < 125;
 const updateRequestTime = () => lastRequestTime = new Date();
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface ScryFallAutoComplete {
     data: string[]
@@ -15,16 +15,22 @@ interface ScryfallImageURI {
     normal: string,
     large: string,
 }
+interface ScryFallSets {
+    data: ScryfallCard[]
+}
+interface CardFaces {
+    image_uris: ScryfallImageURI
+}
 export interface ScryfallCard {
     id: string,
     name: string,
+    card_faces: CardFaces[] | null,
+    other_sideURI: ScryfallImageURI | null,
     image_uris: ScryfallImageURI,
     prints_search_uri: string
     set_name: string,
+    type_line: string
 }
-
-
-
 export async function getScryfallPictureURLs(uuid: string, size: ScryfallPictureSize, name: string): Promise<string[]> {
     const pictures : string[] = [];
 
@@ -35,7 +41,6 @@ export async function getScryfallPictureURLs(uuid: string, size: ScryfallPicture
     }
     return pictures;
 }
-
 export async function getScryFallCardsLike(name: string): Promise<ScryFallAutoComplete> {
     try {
         // Scryfall wont return anything if the string is two or less characters so might as well not even send a request
@@ -47,7 +52,7 @@ export async function getScryFallCardsLike(name: string): Promise<ScryFallAutoCo
         const response = await axios.get<ScryFallAutoComplete>(`${scryfallApiURL}/cards/autocomplete?q=${name}`);
         updateRequestTime();
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             return response.data;
         }
         return {
@@ -61,35 +66,50 @@ export async function getScryFallCardsLike(name: string): Promise<ScryFallAutoCo
         }
     }
 }
-
-export async function getScryfallCard(name: string): Promise<ScryfallCard | null> {
+export async function getScryfallCard(name: string, fuzzy: boolean): Promise<ScryfallCard | null> {
     try {
         if (shouldNotContinue()) {
             delay(100);
-            return await getScryfallCard(name);
+            return await getScryfallCard(name, fuzzy);
         }
-        const response = await axios.get<ScryfallCard>(`${scryfallApiURL}/cards/named?exact=${name}`);
+        const response = await axios.get<ScryfallCard>(`${scryfallApiURL}/cards/named?${fuzzy ? 'fuzzy' : 'exact'}=${name}`);
+        updateRequestTime();
+        if (response.status !== 200) {
+            console.log(response);
+        }
+        const result = response.data;
+        if (result.card_faces && result.card_faces.length > 1 && result.card_faces[0].image_uris) {
+            result.image_uris = result.card_faces[0].image_uris
+            result.other_sideURI = result.card_faces[1].image_uris;
+        }
+        if (!result.image_uris) {
+            result.image_uris = {
+                small: `https://cards.scryfall.io/small/front/${result.id.charAt(0)}/${result.id.charAt(1)}/${result.id}.jpg`,
+                normal: `https://cards.scryfall.io/normal/front/${result.id.charAt(0)}/${result.id.charAt(1)}/${result.id}.jpg`,
+                large: `https://cards.scryfall.io/large/front/${result.id.charAt(0)}/${result.id.charAt(1)}/${result.id}.jpg`
+            };
+        }
 
-        return response.data;
+        return result;
     }
     catch (error) {
-        console.log(error);
         return null;
     }
 }
-
 export async function getScryfallSets(searchURL: string): Promise<ScryfallCard[]> {
     try {
         if (shouldNotContinue()) {
             delay(100);
             return await getScryfallSets(searchURL);
         }
-        const response = await axios.get<ScryfallCard[]>(searchURL);
-        
-        return response.data;
+        const response = await axios.get<ScryFallSets>(searchURL);
+        updateRequestTime();
+
+        return response.data.data;
     }
     catch (error) {
         console.log(error);
         return [];
     }
 }
+
