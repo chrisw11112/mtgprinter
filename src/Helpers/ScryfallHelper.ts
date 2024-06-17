@@ -49,6 +49,10 @@ export async function getScryFallCardsLike(name: string): Promise<ScryFallAutoCo
                 data: []
             }
         }
+        if (shouldNotContinue()) {
+            await delay(150);
+            return await getScryFallCardsLike(name);
+        }
         const response = await axios.get<ScryFallAutoComplete>(`${scryfallApiURL}/cards/autocomplete?q=${name}`);
         updateRequestTime();
 
@@ -69,7 +73,7 @@ export async function getScryFallCardsLike(name: string): Promise<ScryFallAutoCo
 export async function getScryfallCard(name: string, fuzzy: boolean): Promise<ScryfallCard | null> {
     try {
         if (shouldNotContinue()) {
-            delay(100);
+            await delay(150);
             return await getScryfallCard(name, fuzzy);
         }
         const response = await axios.get<ScryfallCard>(`${scryfallApiURL}/cards/named?${fuzzy ? 'fuzzy' : 'exact'}=${name}`);
@@ -78,10 +82,13 @@ export async function getScryfallCard(name: string, fuzzy: boolean): Promise<Scr
             console.log(response);
         }
         const result = response.data;
-        if (result.card_faces && result.card_faces.length > 1 && result.card_faces[0].image_uris) {
+        if (result.card_faces && result.card_faces.length > 1 && result.card_faces[0].image_uris && result.card_faces[0].image_uris) {
             result.image_uris = result.card_faces[0].image_uris
+        }
+        if (result.card_faces && result.card_faces[1].image_uris && result.card_faces[1].image_uris) {
             result.other_sideURI = result.card_faces[1].image_uris;
         }
+        console.log(result);
         if (!result.image_uris) {
             result.image_uris = {
                 small: `https://cards.scryfall.io/small/front/${result.id.charAt(0)}/${result.id.charAt(1)}/${result.id}.jpg`,
@@ -99,7 +106,7 @@ export async function getScryfallCard(name: string, fuzzy: boolean): Promise<Scr
 export async function getScryfallSets(searchURL: string): Promise<ScryfallCard[]> {
     try {
         if (shouldNotContinue()) {
-            delay(100);
+            await delay(150);
             return await getScryfallSets(searchURL);
         }
         const response = await axios.get<ScryFallSets>(searchURL);

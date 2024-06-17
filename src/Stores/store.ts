@@ -46,7 +46,7 @@ export const cardStore = defineStore('cards', {
             const allSetsForCard = await getScryfallSets(card.prints_search_uri);
             const sets: SetStore[] = [];
             for(let i = 0; i < allSetsForCard.length; i++) {
-                if (allSetsForCard[i].card_faces) {
+                if (allSetsForCard[i].card_faces && allSetsForCard[i].card_faces!.length > 0 && allSetsForCard[i].card_faces![0].image_uris) {
                     allSetsForCard[i].image_uris = allSetsForCard[i].card_faces![0].image_uris;
                 }
                 sets.unshift({
