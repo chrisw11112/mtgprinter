@@ -37,7 +37,6 @@ async function createPDF(cards: CardStore[]): Promise<Blob> {
     let x = 28.5;
     let yAxisOffset = 0;
     while (i < cardURLS.length) {
-        console.log(cardURLS[i]);
         if (i % 9 === 0 && i !== 0) {
             yAxisOffset = 0;
             x = 28.5;
