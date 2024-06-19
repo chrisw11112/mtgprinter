@@ -54,15 +54,15 @@ jobs:
         aws-region: us-east-1
 
     - name: Deploy to S3
-      run: aws s3 sync dist/ s3://${{ AWS_BUCKET_NAME }} --delete
+      run: aws s3 sync dist/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
 
     - name: Invalidate CloudFront cache 1
       run: |
         aws cloudfront create-invalidation \
-          --distribution-id ${{ AWS_DISTRIBUTIONID_1 }} \
+          --distribution-id ${{ secrets.AWS_DISTRIBUTIONID_1 }} \
           --paths "/*"
     - name: Invalidate CloudFront cache 2
       run: |
         aws cloudfront create-invalidation \
-          --distribution-id ${{ AWS_DISTRIBUTIONID_2 }} \
+          --distribution-id ${{ secrets.AWS_DISTRIBUTIONID_2 }} \
           --paths "/*"
