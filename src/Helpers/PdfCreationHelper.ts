@@ -34,27 +34,38 @@ async function createPDF(cards: CardStore[]): Promise<Blob> {
     let i = 0;
     const pdfDoc = await PDFDocument.create();
     let page = pdfDoc.addPage();
-    let x = 28.5;
+    const marginOffset = 28.5;
+    const widthOfCardInPdfPoints = 180;
+    const heightOfCardinPdfPoints = 252;
+
+    /*
+        This is the comment to explain this thing:
+        1 inch equals 72 pdf points. A magic card is 2.5 inches x 3.5 inches
+        so the width is 180 pdf points x 252 pdf points. There is a left margin which is 10 mm
+        10 mm in pdf points is around 28.5. The reason for the y is There is a little bit of a top margin
+        and then the rest of that mess gets it to the top . The 430 is the height plus some margin
+    */
+    let x = marginOffset;
     let yAxisOffset = 0;
     while (i < cardURLS.length) {
         if (i % 9 === 0 && i !== 0) {
             yAxisOffset = 0;
-            x = 28.5;
+            x = marginOffset;
             page = pdfDoc.addPage();
         }
         if (i % 3 === 0) {
-            yAxisOffset -= 248;
-            x = 28.5;
+            yAxisOffset -= heightOfCardinPdfPoints;
+            x = marginOffset;
         }
         const embededImage = await pdfDoc.embedJpg(cardURLS[i]);
         const dims = embededImage.scale(.25);
         page.drawImage(embededImage, {
             x: x,
-            y: page.getHeight() / 2 - dims.height / 4 + 426 + yAxisOffset,
-            width: 176,
-            height: 248
+            y: page.getHeight() / 2 - (dims.height / 4) + 430 + yAxisOffset,
+            width: widthOfCardInPdfPoints,
+            height: heightOfCardinPdfPoints
         });
-        x += 176;
+        x += widthOfCardInPdfPoints;
         i += 1;
     }
     const pdf = await pdfDoc.save();

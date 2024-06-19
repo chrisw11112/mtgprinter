@@ -184,6 +184,7 @@ export default defineComponent({
 .card-grid {
   display: grid;
   width: 100%;
+  margin-bottom: 5vh;
 }
 * {
   font-family: Verdana, Geneva, Tahoma, sans-serif;

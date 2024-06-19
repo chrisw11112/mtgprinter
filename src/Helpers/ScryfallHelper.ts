@@ -3,6 +3,8 @@ import axios from "axios";
 const scryfallApiURL = "https://api.scryfall.com";
 let lastRequestTime: Date = new Date();
 
+
+//This delay is because scryfall requests a 100ms delay and I have left a little room.
 const shouldNotContinue = () => (new Date().getTime() - lastRequestTime.getTime()) < 125;
 const updateRequestTime = () => lastRequestTime = new Date();
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -88,7 +90,6 @@ export async function getScryfallCard(name: string, fuzzy: boolean): Promise<Scr
         if (result.card_faces && result.card_faces[1].image_uris && result.card_faces[1].image_uris) {
             result.other_sideURI = result.card_faces[1].image_uris;
         }
-        console.log(result);
         if (!result.image_uris) {
             result.image_uris = {
                 small: `https://cards.scryfall.io/small/front/${result.id.charAt(0)}/${result.id.charAt(1)}/${result.id}.jpg`,
