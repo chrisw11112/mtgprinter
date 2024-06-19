@@ -59,10 +59,10 @@ jobs:
     - name: Invalidate CloudFront cache 1
       run: |
         aws cloudfront create-invalidation \
-          --distribution-id ${{ WS_DISTRIBUTIONID_1 }} \
+          --distribution-id ${{ AWS_DISTRIBUTIONID_1 }} \
           --paths "/*"
     - name: Invalidate CloudFront cache 2
       run: |
         aws cloudfront create-invalidation \
-          --distribution-id ${{ WS_DISTRIBUTIONID_2 }} \
+          --distribution-id ${{ AWS_DISTRIBUTIONID_2 }} \
           --paths "/*"
