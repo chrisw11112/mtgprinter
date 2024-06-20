@@ -1,3 +1,5 @@
+Open Source code for website mtgprinter.com
+
 # magic-pdf-generator
 
 ## Project setup
