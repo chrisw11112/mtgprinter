@@ -1,4 +1,4 @@
-Open Source code for website mtgprinter.com
+Open Source code for website https://mtgprinter.com. This helps in printing mtg cards for proxies / playtesting
 
 # mtgprinter
 
