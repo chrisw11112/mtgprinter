@@ -18,9 +18,9 @@ Grand Arbiter Augustin IV"></textarea>
     <div v-if="cardStore.cards.length < 1" class="info">
       <header class="info-header">
         <img class="image" src="./assets/Designer-modified.png">
-        This is a tool to help print magic the gathering cards to be used as proxies or to play test.
+        This is a tool to help print Magic The Gathering cards (MTG) to be used as proxies or to play test.
         Either import a list of cards or search for the cards using the search bar. Please follow Wizards
-        of the coast's official policy on proxies and their use.
+        of the Coast's official policy on proxies and their use.
       </header>
     </div>
     <div class="download-buttons">
